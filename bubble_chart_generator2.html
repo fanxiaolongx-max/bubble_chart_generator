@@ -389,9 +389,9 @@
 
         saveChangesBtn.addEventListener('click', saveChanges);
         deleteBubbleBtn.addEventListener('click', deleteBubble);
-        cancelModalBtn.addEventListener('click', closeModal);
+        cancelModalBtn.addEventListener('click', discardNewBubble);
         editModalOverlay.addEventListener('click', () => {
-            closeModal();
+            discardNewBubble();
             closeConfirmModal(false);
         });
         confirmDragBtn.addEventListener('click', () => closeConfirmModal(true));
@@ -661,12 +661,20 @@
         }
 
         function closeModal() {
-            if (selectedItem.isNew) {
-                deleteBubble(); 
-            }
             editModalOverlay.style.display = 'none';
             editModal.style.display = 'none';
             selectedItem = { id: null, isNew: false };
+        }
+
+        function discardNewBubble() {
+            if (selectedItem.isNew) {
+                const itemIndex = originalData.findIndex(d => d.id === selectedItem.id);
+                if (itemIndex > -1) {
+                    originalData.splice(itemIndex, 1);
+                    processDataAndRenderChart(true);
+                }
+            }
+            closeModal();
         }
 
         function saveChanges() {
@@ -681,6 +689,7 @@
             }
             generateCategoryColorMap();
             processDataAndRenderChart(true);
+            selectedItem.isNew = false;
             closeModal();
         }
 
